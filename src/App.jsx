@@ -15,10 +15,15 @@ const App = () => {
       try {
         const res = await axios.get(`${API_BASE_URL}/user/current-user`, {
           withCredentials: true,
+          validateStatus: (status) => status < 500, // Handle 401 without throwing error
         });
-        dispatch(setUserData(res.data));
+        if (res.status === 200) {
+          dispatch(setUserData(res.data));
+        } else {
+          dispatch(setUserData(null));
+        }
       } catch (error) {
-        console.log(error);
+        console.log("Error checking user:", error);
         dispatch(setUserData(null));
       }
     };
