@@ -4,6 +4,7 @@ import { Link, useLocation } from "react-router-dom";
 import { FiMenu, FiX, FiChevronDown, FiLogOut } from "react-icons/fi";
 import { FaViacoin } from "react-icons/fa";
 import { GrRobot } from "react-icons/gr";
+import { IoSparkles } from "react-icons/io5";
 import {
   GiCoinsPile,
   GiHeavyThornyTriskelion,
@@ -128,24 +129,54 @@ const Navbar = () => {
               {/* User / Auth Section */}
               <div className="flex items-center gap-6">
                 <div className="flex items-center gap-5">
-                  {/* Credits Display */}
-                  <motion.div
-                    whileHover={{ scale: 1.05 }}
-                    whileTap={{ scale: 0.95 }}
-                    className="hidden sm:flex items-center gap-1.5 bg-gray-100 text-gray-800 px-3 py-1.5 rounded-full border border-gray-200 font-medium text-sm shadow-sm transition-all hover:bg-gray-200 hover:shadow-md cursor-pointer group"
-                  >
+                  <div className="relative group/credits hidden sm:flex h-full items-center">
                     <motion.div
-                      whileHover={{ rotate: [0, -10, 10, -10, 0] }}
-                      transition={{ duration: 0.5 }}
+                      whileHover={{ scale: 1.05 }}
+                      whileTap={{ scale: 0.95 }}
+                      className="flex items-center gap-1.5 bg-gray-100 text-gray-800 px-3 py-1.5 rounded-full border border-gray-200 font-medium text-sm shadow-sm transition-all hover:bg-gray-200 hover:shadow-md cursor-pointer"
                     >
-                      {userData ? (
-                        <FaViacoin className="text-gray-900 text-lg group-hover:scale-110 transition-transform" />
-                      ) : (
-                        <GiCoinsPile className="text-gray-900 text-lg group-hover:scale-110 transition-transform" />
-                      )}
+                      <motion.div
+                        whileHover={{ rotate: [0, -10, 10, -10, 0] }}
+                        transition={{ duration: 0.5 }}
+                      >
+                        {userData ? (
+                          <FaViacoin className="text-gray-900 text-lg hover:scale-110 transition-transform" />
+                        ) : (
+                          <GiCoinsPile className="text-gray-900 text-lg hover:scale-110 transition-transform" />
+                        )}
+                      </motion.div>
+                      <span>{userData ? userData.credits : 0} Credits</span>
                     </motion.div>
-                    <span>{userData ? userData.credits : 0} Credits</span>
-                  </motion.div>
+
+                    {/* Desktop Credits Dropdown (Premium UI) */}
+                    <AnimatePresence>
+                      <div className="absolute right-0 top-[110%] w-64 opacity-0 invisible group-hover/credits:opacity-100 group-hover/credits:visible transition-all duration-200 ease-in-out z-50 pt-2">
+                        <div className="bg-white rounded-2xl shadow-[0_10px_40px_-10px_rgba(0,0,0,0.15)] border border-gray-100 overflow-hidden relative">
+                          {/* Decorative header */}
+                          <div className="h-10 w-full bg-linear-to-r from-emerald-500/10 to-transparent absolute top-0" />
+
+                          <div className="p-5 relative z-10 flex flex-col items-center text-center">
+                            <div className="w-12 h-12 bg-emerald-50 text-emerald-500 rounded-full flex items-center justify-center mb-3 border border-emerald-100/50 shadow-sm">
+                              <IoSparkles className="text-xl" />
+                            </div>
+                            <h4 className="text-gray-900 font-bold mb-1">
+                              Unlock More Sessions
+                            </h4>
+                            <p className="text-xs text-gray-500 mb-4 leading-relaxed">
+                              Run out of credits? Upgrade your plan to get
+                              unlimited AI interviews and advanced feedback.
+                            </p>
+                            <Link
+                              to="/pricing"
+                              className="w-full cursor-pointer flex items-center justify-center gap-2 bg-gray-900 text-white px-4 py-2.5 rounded-xl text-sm hover:bg-black hover:shadow-md transition-all font-semibold active:scale-[0.98]"
+                            >
+                              Upgrade Plan
+                            </Link>
+                          </div>
+                        </div>
+                      </div>
+                    </AnimatePresence>
+                  </div>
 
                   {userData ? (
                     <>
@@ -236,25 +267,36 @@ const Navbar = () => {
               <div className="my-4 border-t border-gray-100 pt-4">
                 <div className="flex flex-col gap-2">
                   {/* Mobile Credits */}
-                  <motion.div
-                    whileHover={{ scale: 1.02 }}
-                    whileTap={{ scale: 0.98 }}
-                    className="flex items-center gap-2 px-4 py-3 bg-gray-100 rounded-xl border border-gray-200 text-gray-800 font-medium mx-2 cursor-pointer group hover:shadow-md transition-shadow"
-                  >
+                  <div className="flex flex-col gap-2">
                     <motion.div
-                      whileHover={{ rotate: [0, -10, 10, -10, 0] }}
-                      transition={{ duration: 0.5 }}
+                      whileHover={{ scale: 1.02 }}
+                      whileTap={{ scale: 0.98 }}
+                      className="flex items-center justify-between px-4 py-3 bg-gray-100 rounded-xl border border-gray-200 text-gray-800 font-medium mx-2"
                     >
-                      {userData ? (
-                        <FaViacoin className="text-gray-900 text-xl group-hover:scale-110 transition-transform" />
-                      ) : (
-                        <GiCoinsPile className="text-gray-900 text-xl group-hover:scale-110 transition-transform" />
-                      )}
+                      <div className="flex items-center gap-2">
+                        <motion.div
+                          whileHover={{ rotate: [0, -10, 10, -10, 0] }}
+                          transition={{ duration: 0.5 }}
+                        >
+                          {userData ? (
+                            <FaViacoin className="text-gray-900 text-xl" />
+                          ) : (
+                            <GiCoinsPile className="text-gray-900 text-xl" />
+                          )}
+                        </motion.div>
+                        <span>
+                          {userData ? userData.credits : 0} Available Credits
+                        </span>
+                      </div>
+                      <Link
+                        to="/pricing"
+                        className="text-gray-800 text-sm hover:text-white bg-gray-200 hover:bg-gray-900 px-3 py-1.5 border border-gray-300 hover:border-gray-800 rounded-full font-medium transition-colors"
+                        onClick={() => setMobileMenuOpen(false)}
+                      >
+                        Add More
+                      </Link>
                     </motion.div>
-                    <span>
-                      {userData ? userData.credits : 0} Available Credits
-                    </span>
-                  </motion.div>
+                  </div>
 
                   {userData ? (
                     <>
