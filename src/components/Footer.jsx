@@ -11,7 +11,7 @@ const Footer = () => {
           <div className="col-span-1 md:col-span-1">
             <Link
               to="/"
-              className="flex items-center gap-2 outline-none mb-4 inline-flex"
+              className="flex items-center gap-2 outline-none mb-4"
             >
               <div className="flex items-center justify-center w-8 h-8 rounded-lg bg-emerald-50 text-emerald-600 border border-emerald-200 shadow-sm">
                 <IoSparkles className="text-sm" />

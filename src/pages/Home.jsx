@@ -249,7 +249,7 @@ const Home = () => {
               <motion.div
                 animate={{ rotate: -360 }}
                 transition={{ duration: 30, repeat: Infinity, ease: "linear" }}
-                className="absolute w-[100%] h-[100%] rounded-full border border-gray-100"
+                className="absolute w-full h-full rounded-full border border-gray-100"
               />
               <motion.div
                 animate={{ rotate: 360 }}
