@@ -9,9 +9,8 @@ import axios from "axios";
 import { useDispatch } from "react-redux";
 import { setUserData } from "../redux/userSlice";
 
-const dispatch = useDispatch();
-
 const Auth = () => {
+  const dispatch = useDispatch();
   const handleGoogleAuth = async () => {
     try {
       const response = await signInWithPopup(auth, provider);
