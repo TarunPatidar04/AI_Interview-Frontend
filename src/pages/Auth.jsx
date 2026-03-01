@@ -4,16 +4,30 @@ import { FcGoogle } from "react-icons/fc";
 import { motion } from "motion/react";
 import { signInWithPopup } from "firebase/auth";
 import { auth, provider } from "../utils/firebase";
+import { API_BASE_URL } from "../App";
+import axios from "axios";
 
 const Auth = () => {
   const handleGoogleAuth = async () => {
     try {
       const response = await signInWithPopup(auth, provider);
-      console.log("response", response);
+      let user = response.user;
+      let name = user.displayName;
+      let email = user.email;
+      const result = await axios.post(
+        `${API_BASE_URL}/auth/google`,
+        {
+          name: name,
+          email: email,
+        },
+        { withCredentials: true },
+      );
+      // console.log("data", result.data);
     } catch (error) {
       console.log(error);
     }
   };
+
   return (
     <div className="w-full min-h-screen bg-[#f3f3f3] flex items-center justify-center px-6 py-20">
       <motion.div
