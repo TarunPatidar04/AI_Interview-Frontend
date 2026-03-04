@@ -66,7 +66,7 @@ const Pricing = () => {
       </div>
 
       {/* Adding pt-32 so it clears the global Navbar */}
-      <main className="relative z-10 flex-grow pt-32 pb-20 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto w-full">
+      <main className="relative z-10 grow pt-32 pb-20 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto w-full">
         {/* Header Section */}
         <div className="text-center max-w-3xl mx-auto mb-16">
           <motion.div
@@ -147,7 +147,7 @@ const Pricing = () => {
                   {plan.features.map((feature, i) => (
                     <li key={i} className="flex items-start gap-3">
                       <FiCheck
-                        className={`mt-1 flex-shrink-0 text-lg ${
+                        className={`mt-1 shrink-0 text-lg ${
                           plan.highlight
                             ? "text-emerald-400"
                             : "text-emerald-500"
