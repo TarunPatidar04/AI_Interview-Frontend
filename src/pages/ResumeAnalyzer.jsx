@@ -3,7 +3,7 @@ import { motion } from "framer-motion";
 import { FaFileUpload, FaCheckCircle, FaSpinner } from "react-icons/fa";
 import axios from "axios";
 import { API_BASE_URL } from "../config";
-import Navbar from "../components/Navbar";
+
 import Footer from "../components/Footer";
 
 const ResumeAnalyzer = () => {
@@ -43,8 +43,7 @@ const ResumeAnalyzer = () => {
 
   return (
     <div className="min-h-screen flex flex-col bg-gray-50">
-      <Navbar />
-      <main className="flex-grow flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
+      <main className="flex-grow flex items-center justify-center pt-32 pb-12 px-4 sm:px-6 lg:px-8">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}

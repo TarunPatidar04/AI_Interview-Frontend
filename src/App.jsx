@@ -9,6 +9,9 @@ import InterviewPage from "./pages/InterviewPage";
 import ResumeAnalyzer from "./pages/ResumeAnalyzer";
 
 import { API_BASE_URL } from "./config";
+import Navbar from "./components/Navbar";
+import Pricing from "./pages/Pricing";
+
 const App = () => {
   const dispatch = useDispatch();
   useEffect(() => {
@@ -32,11 +35,13 @@ const App = () => {
   }, [dispatch]);
   return (
     <>
+      <Navbar />
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/auth" element={<Auth />} />
         <Route path="/interview" element={<InterviewPage />} />
         <Route path="/resume" element={<ResumeAnalyzer />} />
+        <Route path="/pricing" element={<Pricing />} />
       </Routes>
     </>
   );

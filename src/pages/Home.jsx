@@ -1,5 +1,3 @@
-
-import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
 import { Link, useNavigate } from "react-router-dom";
 import { useState, useEffect } from "react";
@@ -41,8 +39,6 @@ const Home = () => {
 
   return (
     <div className="min-h-screen bg-[#f3f3f3] text-gray-900 overflow-hidden font-sans selection:bg-emerald-500/30">
-      <Navbar />
-
       {/* Decorative Background Elements */}
       <div className="fixed inset-0 pointer-events-none z-0">
         <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-emerald-100/50 rounded-full blur-[120px]" />
