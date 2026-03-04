@@ -1,14 +1,17 @@
 import React, { useState, useEffect, useRef } from "react";
 import { motion } from "motion/react";
 
-
 import {
   FaMicrophone,
   FaStopCircle,
   FaPaperPlane,
   FaCheckCircle,
+  FaVolumeUp,
+  FaPlay,
 } from "react-icons/fa";
 import { submitAnswer, finishInterview } from "../utils/api";
+import femaleAiVideo from "../assets/Videos/female-ai.mp4";
+import maleAiVideo from "../assets/Videos/male-ai.mp4";
 const Step2Interview = ({ interviewData, onFinish }) => {
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [answerText, setAnswerText] = useState("");
@@ -16,6 +19,10 @@ const Step2Interview = ({ interviewData, onFinish }) => {
   const [timeLeft, setTimeLeft] = useState(60);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isFinishing, setIsFinishing] = useState(false);
+
+  const [feedbackData, setFeedbackData] = useState(null);
+  const [isPlayingVideo, setIsPlayingVideo] = useState(false);
+  const videoRef = useRef(null);
 
   const recognitionRef = useRef(null);
 
@@ -67,26 +74,49 @@ const Step2Interview = ({ interviewData, onFinish }) => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isRecording]);
 
+  // Handle speaking text using TTS
+  const speakText = (text, onEndCallback = null) => {
+    if ("speechSynthesis" in window) {
+      window.speechSynthesis.cancel(); // Stop any current speech
+      const utterance = new SpeechSynthesisUtterance(text);
+      utterance.onstart = () => setIsPlayingVideo(true);
+      utterance.onend = () => {
+        setIsPlayingVideo(false);
+        if (onEndCallback) onEndCallback();
+      };
+      window.speechSynthesis.speak(utterance);
+    }
+  };
+
   useEffect(() => {
-    if (currentQuestion) {
+    if (currentQuestion && !feedbackData) {
       setTimeLeft(currentQuestion.timeLimit || 60);
       setAnswerText("");
       if (isRecording && recognitionRef.current) {
         recognitionRef.current.stop();
         setIsRecording(false);
       }
+      // Speak the new question
+      speakText(currentQuestion.question);
     }
-  }, [currentQuestionIndex, currentQuestion]);
+
+    // Stop speaking when unmounting or changing questions abruptly
+    return () => {
+      if ("speechSynthesis" in window) {
+        window.speechSynthesis.cancel();
+      }
+    };
+  }, [currentQuestionIndex, currentQuestion, feedbackData]);
 
   useEffect(() => {
-    if (timeLeft > 0) {
+    if (timeLeft > 0 && !feedbackData) {
       const timer = setTimeout(() => setTimeLeft(timeLeft - 1), 1000);
       return () => clearTimeout(timer);
-    } else if (timeLeft === 0 && !isSubmitting) {
-      handleNextQuestion("Time limit exceeded");
+    } else if (timeLeft === 0 && !isSubmitting && !feedbackData) {
+      handleSubmitAnswer("Time limit exceeded");
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [timeLeft, isSubmitting]);
+  }, [timeLeft, isSubmitting, feedbackData]);
 
   const toggleRecording = () => {
     if (isRecording) {
@@ -103,7 +133,7 @@ const Step2Interview = ({ interviewData, onFinish }) => {
     }
   };
 
-  const handleNextQuestion = async (forcedAnswer = null) => {
+  const handleSubmitAnswer = async (forcedAnswer = null) => {
     if (isSubmitting) return;
     setIsSubmitting(true);
 
@@ -116,7 +146,7 @@ const Step2Interview = ({ interviewData, onFinish }) => {
       const finalAnswer = forcedAnswer !== null ? forcedAnswer : answerText;
       const timeTaken = (currentQuestion.timeLimit || 60) - timeLeft;
 
-      await submitAnswer({
+      const response = await submitAnswer({
         interviewId,
         questionId: currentQuestion._id,
         answer: finalAnswer,
@@ -124,16 +154,30 @@ const Step2Interview = ({ interviewData, onFinish }) => {
         timeTaken,
       });
 
-      if (currentQuestionIndex < questions.length - 1) {
-        setCurrentQuestionIndex((prev) => prev + 1);
-      } else {
-        handleEndInterview();
-      }
+      // Show feedback instead of immediately moving to the next question
+      setFeedbackData({
+        score: response.score,
+        feedback: response.feedback,
+      });
+
+      // Speak the feedback
+      const feedbackSpeech = `Your score is ${response.score} out of 10. ${response.feedback}`;
+      speakText(feedbackSpeech);
     } catch (error) {
       console.error("Failed to submit answer:", error);
       alert("Error submitting answer. Please try again.");
     } finally {
       setIsSubmitting(false);
+    }
+  };
+
+  const moveToNextQuestion = () => {
+    window.speechSynthesis.cancel(); // Stop playing feedback if still playing
+    setFeedbackData(null);
+    if (currentQuestionIndex < questions.length - 1) {
+      setCurrentQuestionIndex((prev) => prev + 1);
+    } else {
+      handleEndInterview();
     }
   };
 
@@ -188,11 +232,39 @@ const Step2Interview = ({ interviewData, onFinish }) => {
 
         {/* Content Body */}
         <div className="p-8 flex-1 flex flex-col gap-6 overflow-y-auto">
-          {/* Question Display */}
-          <div className="bg-gray-50 border border-gray-200 p-6 rounded-2xl shadow-inner">
-            <h2 className="text-2xl font-semibold text-gray-800 leading-snug">
-              {currentQuestion.question}
-            </h2>
+          {/* Question Display & Video */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div className="md:col-span-1 bg-black rounded-2xl overflow-hidden shadow-inner h-[200px] relative flex items-center justify-center">
+              <video
+                ref={videoRef}
+                src={interviewData?.mode === "HR" ? femaleAiVideo : maleAiVideo}
+                className="w-full h-full object-cover"
+                autoPlay
+                loop
+                muted // Always muted because we use TTS for audio
+                playsInline
+                style={{ opacity: isPlayingVideo ? 1 : 0.7 }}
+              />
+              {!isPlayingVideo && (
+                <div className="absolute inset-0 bg-black/20 flex items-center justify-center">
+                  <span className="bg-black/50 text-white px-3 py-1 rounded-full text-xs">
+                    AI is listening
+                  </span>
+                </div>
+              )}
+            </div>
+            <div className="md:col-span-2 bg-gray-50 border border-gray-200 p-6 rounded-2xl shadow-inner flex flex-col justify-center relative">
+              <button
+                onClick={() => speakText(currentQuestion.question)}
+                className="absolute top-4 right-4 text-gray-400 hover:text-green-500 transition-colors cursor-pointer"
+                title="Repeat Question"
+              >
+                <FaVolumeUp size={20} />
+              </button>
+              <h2 className="text-xl md:text-2xl font-semibold text-gray-800 leading-snug pr-8">
+                {currentQuestion.question}
+              </h2>
+            </div>
           </div>
 
           {/* Input Area */}
@@ -222,7 +294,7 @@ const Step2Interview = ({ interviewData, onFinish }) => {
             </div>
 
             <textarea
-              className="w-full flex-1 min-h-[150px] p-5 border-2 border-gray-200 rounded-2xl focus:border-green-500 focus:ring-4 focus:ring-green-500/20 outline-none resize-none text-gray-700 text-lg leading-relaxed transition shadow-inner"
+              className="w-full flex-1 min-h-[150px] p-5 border-2 border-gray-200 rounded-2xl focus:border-green-500 focus:ring-4 focus:ring-green-500/20 outline-none resize-none text-gray-700 text-lg leading-relaxed transition shadow-inner disabled:opacity-75 disabled:bg-gray-50"
               placeholder={
                 isRecording
                   ? "Listening... Please speak."
@@ -230,7 +302,48 @@ const Step2Interview = ({ interviewData, onFinish }) => {
               }
               value={answerText}
               onChange={(e) => setAnswerText(e.target.value)}
+              disabled={feedbackData !== null}
             ></textarea>
+
+            {/* Feedback Display */}
+            {feedbackData && (
+              <motion.div
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="bg-blue-50 border-l-4 border-blue-500 p-5 rounded-r-xl shadow-sm mt-2"
+              >
+                <div className="flex justify-between items-start mb-2">
+                  <h3 className="font-bold text-blue-800">AI Feedback</h3>
+                  <div className="flex items-center gap-2">
+                    <button
+                      onClick={() =>
+                        speakText(
+                          `Your score is ${feedbackData.score} out of 10. ${feedbackData.feedback}`,
+                        )
+                      }
+                      className="text-blue-500 hover:text-blue-700 cursor-pointer"
+                      title="Read Feedback"
+                    >
+                      <FaVolumeUp />
+                    </button>
+                    <span
+                      className={`font-bold px-3 py-1 rounded-full text-sm ${
+                        feedbackData.score >= 8
+                          ? "bg-green-200 text-green-800"
+                          : feedbackData.score >= 5
+                            ? "bg-yellow-200 text-yellow-800"
+                            : "bg-red-200 text-red-800"
+                      }`}
+                    >
+                      Score: {feedbackData.score}/10
+                    </span>
+                  </div>
+                </div>
+                <p className="text-blue-900 leading-relaxed text-lg">
+                  {feedbackData.feedback}
+                </p>
+              </motion.div>
+            )}
           </div>
         </div>
 
@@ -244,23 +357,36 @@ const Step2Interview = ({ interviewData, onFinish }) => {
             {isFinishing ? "Finishing..." : "End Interview Early"}
           </button>
 
-          <button
-            onClick={() => handleNextQuestion()}
-            disabled={isSubmitting || !answerText.trim()}
-            className="flex items-center gap-2 px-8 py-3 bg-green-500 hover:bg-green-600 text-white font-bold rounded-xl shadow-lg transition hover:-translate-y-1 disabled:opacity-50 disabled:hover:translate-y-0 cursor-pointer"
-          >
-            {isSubmitting ? (
-              <span className="animate-pulse">Submitting...</span>
-            ) : currentQuestionIndex === questions.length - 1 ? (
-              <>
-                Submit & Finish <FaCheckCircle />
-              </>
-            ) : (
-              <>
-                Next Question <FaPaperPlane />
-              </>
-            )}
-          </button>
+          {!feedbackData ? (
+            <button
+              onClick={() => handleSubmitAnswer()}
+              disabled={isSubmitting || !answerText.trim()}
+              className="flex items-center gap-2 px-8 py-3 bg-blue-500 hover:bg-blue-600 text-white font-bold rounded-xl shadow-lg transition hover:-translate-y-1 disabled:opacity-50 disabled:hover:translate-y-0 cursor-pointer"
+            >
+              {isSubmitting ? (
+                <span className="animate-pulse">Submitting...</span>
+              ) : (
+                <>
+                  Submit Answer <FaPaperPlane />
+                </>
+              )}
+            </button>
+          ) : (
+            <button
+              onClick={moveToNextQuestion}
+              className="flex items-center gap-2 px-8 py-3 bg-green-500 hover:bg-green-600 text-white font-bold rounded-xl shadow-lg transition hover:-translate-y-1 disabled:opacity-50 disabled:hover:translate-y-0 cursor-pointer"
+            >
+              {currentQuestionIndex === questions.length - 1 ? (
+                <>
+                  Finish Interview <FaCheckCircle />
+                </>
+              ) : (
+                <>
+                  Next Question <FaPlay />
+                </>
+              )}
+            </button>
+          )}
         </div>
       </div>
     </motion.div>

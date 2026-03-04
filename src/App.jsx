@@ -6,6 +6,7 @@ import axios from "axios";
 import { useDispatch } from "react-redux";
 import { setUserData } from "./redux/userSlice";
 import InterviewPage from "./pages/InterviewPage";
+import ResumeAnalyzer from "./pages/ResumeAnalyzer";
 
 import { API_BASE_URL } from "./config";
 const App = () => {
@@ -35,6 +36,7 @@ const App = () => {
         <Route path="/" element={<Home />} />
         <Route path="/auth" element={<Auth />} />
         <Route path="/interview" element={<InterviewPage />} />
+        <Route path="/resume" element={<ResumeAnalyzer />} />
       </Routes>
     </>
   );
