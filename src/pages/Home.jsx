@@ -1,7 +1,9 @@
-import { motion } from "motion/react";
+
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import { useState, useEffect } from "react";
+import { getInterviewHistory } from "../utils/api";
 import {
   FiArrowRight,
   FiPlay,
@@ -12,10 +14,31 @@ import {
   FiMonitor,
   FiMic,
   FiTarget,
+  FiCalendar,
+  FiAward,
 } from "react-icons/fi";
 import { IoSparkles } from "react-icons/io5";
+import { motion } from "motion/react";
 
 const Home = () => {
+  const [history, setHistory] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    const fetchHistory = async () => {
+      try {
+        const data = await getInterviewHistory();
+        setHistory(data);
+      } catch (error) {
+        console.error("Failed to fetch history:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchHistory();
+  }, []);
+
   return (
     <div className="min-h-screen bg-[#f3f3f3] text-gray-900 overflow-hidden font-sans selection:bg-emerald-500/30">
       <Navbar />
@@ -79,18 +102,124 @@ const Home = () => {
               <FiPlay className="group-hover:translate-x-1 transition-transform" />
               Start Interview
             </Link>
-            <Link
-              to="/history"
+            <a
+              href="#history"
               className="w-full sm:w-auto flex items-center justify-center gap-2 bg-white border border-gray-200 text-gray-900 px-8 py-4 rounded-full font-semibold text-lg hover:bg-gray-50 hover:border-gray-300 hover:scale-105 active:scale-95 transition-all cursor-pointer shadow-sm hover:shadow-md"
             >
               <FiClock />
               View History
-            </Link>
+            </a>
           </motion.div>
         </section>
 
+        {/* Previous Interviews Dashboard */}
+        <section
+          id="history"
+          className="py-24 relative px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto"
+        >
+          <div className="flex flex-col md:flex-row items-center justify-between mb-12">
+            <div>
+              <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-2">
+                Your Interview History
+              </h2>
+              <p className="text-gray-600 text-lg">
+                Track your progress and review past performances.
+              </p>
+            </div>
+            <Link
+              to="/interview"
+              className="mt-4 md:mt-0 px-6 py-3 bg-emerald-100 text-emerald-700 font-semibold rounded-full hover:bg-emerald-200 transition"
+            >
+              + New Interview
+            </Link>
+          </div>
+
+          {loading ? (
+            <div className="flex items-center justify-center py-20">
+              <div className="w-10 h-10 border-4 border-emerald-500 border-t-transparent rounded-full animate-spin"></div>
+            </div>
+          ) : history.length === 0 ? (
+            <div className="bg-white rounded-3xl p-12 text-center border border-gray-100 shadow-sm flex flex-col items-center">
+              <FiFileText className="text-5xl text-gray-300 mb-4" />
+              <h3 className="text-xl font-bold text-gray-700 mb-2">
+                No past interviews found
+              </h3>
+              <p className="text-gray-500 mb-6">
+                Start your first AI mock interview to see it here.
+              </p>
+              <Link
+                to="/interview"
+                className="px-6 py-3 bg-gray-900 text-white font-semibold rounded-full hover:bg-gray-800 transition"
+              >
+                Get Started
+              </Link>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {history.map((interview) => (
+                <motion.div
+                  key={interview._id}
+                  whileHover={{ y: -5 }}
+                  className="bg-white rounded-3xl p-6 shadow-sm border border-gray-100 hover:border-emerald-200 transition-colors flex flex-col"
+                >
+                  <div className="flex justify-between items-start mb-4">
+                    <span
+                      className={`px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider ${
+                        interview.status === "completed"
+                          ? "bg-emerald-100 text-emerald-700"
+                          : "bg-amber-100 text-amber-700"
+                      }`}
+                    >
+                      {interview.status}
+                    </span>
+                    <span className="text-sm font-medium text-gray-400 flex items-center gap-1">
+                      <FiCalendar />{" "}
+                      {new Date(interview.createdAt).toLocaleDateString()}
+                    </span>
+                  </div>
+
+                  <h3 className="text-xl font-bold text-gray-900 mb-1">
+                    {interview.role}
+                  </h3>
+                  <div className="text-gray-500 text-sm mb-4 font-medium flex gap-3">
+                    <span>{interview.mode}</span>
+                    <span>•</span>
+                    <span>{interview.experience} yrs exp</span>
+                  </div>
+
+                  {interview.status === "completed" ? (
+                    <div className="mt-auto bg-gray-50 rounded-2xl p-4 flex items-center justify-between">
+                      <div>
+                        <div className="text-xs text-gray-500 font-bold uppercase mb-1">
+                          Final Score
+                        </div>
+                        <div className="text-2xl font-extrabold text-gray-900 flex items-center gap-2">
+                          {interview.finalScore?.toFixed(1) || 0}{" "}
+                          <span className="text-sm text-gray-400 font-medium">
+                            / 10
+                          </span>
+                        </div>
+                      </div>
+                      <FiAward className="text-4xl text-emerald-500 opacity-20" />
+                    </div>
+                  ) : (
+                    <div className="mt-auto pt-4 border-t border-gray-100">
+                      <button
+                        onClick={() => navigate("/interview")}
+                        className="w-full py-2 text-center text-emerald-600 font-semibold hover:bg-emerald-50 rounded-lg transition"
+                      >
+                        Resume Interview
+                      </button>
+                    </div>
+                  )}
+                </motion.div>
+              ))}
+            </div>
+          )}
+        </section>
+
         {/* Dynamic AI Features Section */}
-        <section className="py-24 relative px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
+        <section className="py-24 relative px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto border-t border-gray-200">
           <div className="text-center mb-20">
             <h2 className="text-3xl md:text-5xl font-bold text-gray-900 mb-6">
               Smarter Preparation,{" "}

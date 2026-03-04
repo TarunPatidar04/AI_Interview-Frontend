@@ -9,7 +9,7 @@ import {
 } from "react-icons/fa";
 import axios from "axios";
 import { GoMultiSelect } from "react-icons/go";
-import { API_BASE_URL } from "../App";
+import { API_BASE_URL } from "../config";
 const Step1SetUp = ({ onStart }) => {
   const [role, setRole] = useState("");
   const [experience, setExperience] = useState("");
@@ -240,13 +240,66 @@ const Step1SetUp = ({ onStart }) => {
                   )}
                 </motion.div>
               )}
+
               <motion.button
-                disabled={!role || !experience || !resumeFile}
+                onClick={async () => {
+                  setLoading(true);
+                  try {
+                    const data = {
+                      role,
+                      experience,
+                      mode,
+                      resumeText,
+                      projects,
+                      skills,
+                    };
+                    const response = await axios.post(
+                      `${API_BASE_URL}/interview/generate-questions`,
+                      data,
+                      { withCredentials: true },
+                    );
+                    onStart(response.data);
+                  } catch (error) {
+                    console.error("Failed to start interview:", error);
+                    alert(
+                      "Failed to start interview. Please check your credits or try again.",
+                    );
+                  } finally {
+                    setLoading(false);
+                  }
+                }}
+                disabled={!role || !experience || !resumeFile || loading}
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
-                className="w-full disabled:bg-gray-600  cursor-pointer bg-green-500 mt-5 hover:bg-green-600 text-white px-5 py-3 rounded-full transition shadow-lg duration-300"
+                className="w-full disabled:bg-gray-400 disabled:cursor-not-allowed cursor-pointer bg-green-500 mt-5 hover:bg-green-600 text-white px-5 py-3 rounded-xl font-semibold transition shadow-md duration-300 flex justify-center items-center"
               >
-                Start Interview
+                {loading ? (
+                  <div className="flex items-center gap-2">
+                    <svg
+                      className="animate-spin h-5 w-5 text-white"
+                      xmlns="http://www.w3.org/2000/svg"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                    >
+                      <circle
+                        className="opacity-25"
+                        cx="12"
+                        cy="12"
+                        r="10"
+                        stroke="currentColor"
+                        strokeWidth="4"
+                      ></circle>
+                      <path
+                        className="opacity-75"
+                        fill="currentColor"
+                        d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                      ></path>
+                    </svg>
+                    Generating Questions...
+                  </div>
+                ) : (
+                  "Start Interview"
+                )}
               </motion.button>
             </div>
           </div>

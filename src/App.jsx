@@ -7,8 +7,7 @@ import { useDispatch } from "react-redux";
 import { setUserData } from "./redux/userSlice";
 import InterviewPage from "./pages/InterviewPage";
 
-export const API_BASE_URL = "http://localhost:3000/api";
-
+import { API_BASE_URL } from "./config";
 const App = () => {
   const dispatch = useDispatch();
   useEffect(() => {

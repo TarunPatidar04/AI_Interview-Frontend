@@ -1,7 +1,7 @@
-import { motion, AnimatePresence } from "motion/react";
+import { AnimatePresence, motion } from "framer-motion";
 import { signInWithPopup } from "firebase/auth";
 import { auth, provider } from "../utils/firebase";
-import { API_BASE_URL } from "../App";
+import { API_BASE_URL } from "../config";
 import axios from "axios";
 import { useDispatch } from "react-redux";
 import { setUserData } from "../redux/userSlice";

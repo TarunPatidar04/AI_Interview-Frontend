@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { Link, useLocation } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { FiMenu, FiX, FiChevronDown, FiLogOut } from "react-icons/fi";
 import { FaViacoin } from "react-icons/fa";
 import { GrRobot } from "react-icons/gr";
@@ -13,10 +13,10 @@ import {
   GiLightThornyTriskelion,
 } from "react-icons/gi";
 import { LuTrainFrontTunnel } from "react-icons/lu";
-import { motion, AnimatePresence } from "motion/react";
+import { AnimatePresence, motion } from "framer-motion";
 import axios from "axios";
 import { setUserData } from "../redux/userSlice";
-import { API_BASE_URL } from "../App";
+import { API_BASE_URL } from "../config";
 import AuthModel from "./AuthModel";
 
 const LOGO_ICONS = [
@@ -35,7 +35,6 @@ const Navbar = () => {
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
   const [logoIconIndex, setLogoIconIndex] = useState(0);
   const profileRef = useRef(null);
-  const location = useLocation();
   const dispatch = useDispatch();
 
   const handleLogout = async (e) => {

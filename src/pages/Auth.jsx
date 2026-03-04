@@ -1,18 +1,16 @@
 import { BsRobot } from "react-icons/bs";
 import { IoSparkles } from "react-icons/io5";
+import { motion } from "framer-motion";
 import { FcGoogle } from "react-icons/fc";
-import { motion } from "motion/react";
 import { signInWithPopup } from "firebase/auth";
 import { auth, provider } from "../utils/firebase";
-import { useNavigate } from "react-router-dom";
-import { API_BASE_URL } from "../App";
+import { API_BASE_URL } from "../config";
 import axios from "axios";
 import { useDispatch } from "react-redux";
 import { setUserData } from "../redux/userSlice";
 
 const Auth = () => {
   const dispatch = useDispatch();
-  const navigate = useNavigate();
 
   const handleGoogleAuth = async () => {
     try {
