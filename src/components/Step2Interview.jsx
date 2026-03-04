@@ -25,6 +25,11 @@ const Step2Interview = ({ interviewData, onFinish }) => {
   const videoRef = useRef(null);
 
   const recognitionRef = useRef(null);
+  const isRecordingRef = useRef(isRecording);
+
+  useEffect(() => {
+    isRecordingRef.current = isRecording;
+  }, [isRecording]);
 
   const interviewId = interviewData?.interviewId;
   const questions = interviewData?.questions || [];
@@ -35,11 +40,11 @@ const Step2Interview = ({ interviewData, onFinish }) => {
     if ("webkitSpeechRecognition" in window || "SpeechRecognition" in window) {
       const SpeechRecognition =
         window.SpeechRecognition || window.webkitSpeechRecognition;
-      recognitionRef.current = new SpeechRecognition();
-      recognitionRef.current.continuous = true;
-      recognitionRef.current.interimResults = true;
+      const recognition = new SpeechRecognition();
+      recognition.continuous = true;
+      recognition.interimResults = true;
 
-      recognitionRef.current.onresult = (event) => {
+      recognition.onresult = (event) => {
         let finalTranscript = "";
 
         for (let i = event.resultIndex; i < event.results.length; ++i) {
@@ -55,24 +60,37 @@ const Step2Interview = ({ interviewData, onFinish }) => {
         }
       };
 
-      recognitionRef.current.onerror = (event) => {
-        console.error("Speech recognition error", event.error);
+      recognition.onerror = (event) => {
+        console.error("Speech recognition error:", event.error);
+        if (event.error === "not-allowed") {
+          alert(
+            "Microphone access denied. Please allow microphone access in your browser settings or ensure you are on a secure context (localhost or HTTPS).",
+          );
+        }
         setIsRecording(false);
       };
 
-      recognitionRef.current.onend = () => {
+      recognition.onend = () => {
         // Auto restart if still recording
-        if (isRecording) {
+        if (isRecordingRef.current) {
           try {
-            recognitionRef.current.start();
+            recognition.start();
           } catch (e) {
-            console.error(e);
+            console.error("Failed to restart recognition:", e);
+            setIsRecording(false);
           }
         }
       };
+
+      recognitionRef.current = recognition;
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isRecording]);
+
+    return () => {
+      if (recognitionRef.current) {
+        recognitionRef.current.stop();
+      }
+    };
+  }, []);
 
   // Handle speaking text using TTS
   const speakText = (text, onEndCallback = null) => {
