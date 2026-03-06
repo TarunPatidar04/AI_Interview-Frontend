@@ -30,7 +30,6 @@ const AuthModel = ({ onClose }) => {
       dispatch(setUserData(result.data.user));
       onClose();
     } catch (error) {
-      console.log(error);
       dispatch(setUserData(null));
     }
   };

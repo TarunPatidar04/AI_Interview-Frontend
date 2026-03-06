@@ -49,7 +49,7 @@ const Navbar = () => {
       setProfileDropdownOpen(false);
       setMobileMenuOpen(false);
     } catch (error) {
-      console.log(error);
+      // Ignore logout errors
     }
   };
 
