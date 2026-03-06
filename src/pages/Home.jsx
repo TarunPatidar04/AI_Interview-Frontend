@@ -105,6 +105,13 @@ const Home = () => {
               <FiClock />
               View History
             </a>
+            <Link
+              to="/resume"
+              className="w-full sm:w-auto flex items-center justify-center gap-2 bg-emerald-50 border border-emerald-200 text-emerald-700 px-8 py-4 rounded-full font-semibold text-lg hover:bg-emerald-100 hover:scale-105 active:scale-95 transition-all cursor-pointer shadow-sm hover:shadow-md"
+            >
+              <FiFileText />
+              Check Resume
+            </Link>
           </motion.div>
         </section>
 

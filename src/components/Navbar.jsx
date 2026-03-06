@@ -224,9 +224,10 @@ const Navbar = () => {
                   ) : (
                     <button
                       onClick={() => setIsAuthModalOpen(true)}
-                      className="w-10 h-10 rounded-full bg-gray-900 border border-gray-700 flex items-center justify-center text-white font-bold shadow-sm hover:bg-black transition-colors focus:outline-none cursor-pointer hover:scale-105 active:scale-95"
+                      className="px-5 py-2 rounded-full bg-gray-900 border border-gray-700 flex items-center gap-2 justify-center text-white font-bold shadow-sm hover:bg-black transition-colors focus:outline-none cursor-pointer hover:scale-105 active:scale-95"
                     >
-                      <GrRobot className="text-xl text-white" />
+                      <GrRobot className="text-lg text-white" />
+                      <span>Login</span>
                     </button>
                   )}
                 </div>
@@ -328,15 +329,16 @@ const Navbar = () => {
                       </div>
                     </>
                   ) : (
-                    <div className="flex flex-col gap-3 px-4 mt-2">
+                    <div className="flex flex-col gap-3 px-4 mt-2 mb-4">
                       <button
                         onClick={() => {
                           setMobileMenuOpen(false);
                           setIsAuthModalOpen(true);
                         }}
-                        className="w-12 h-12 rounded-full bg-gray-900 border border-gray-700 flex items-center justify-center text-white font-bold shadow-sm hover:bg-black transition-colors mx-auto cursor-pointer hover:scale-105 active:scale-95"
+                        className="w-full py-3 rounded-xl bg-gray-900 border border-gray-700 flex items-center gap-2 justify-center text-white font-bold shadow-sm hover:bg-black transition-colors mx-auto cursor-pointer hover:scale-105 active:scale-95"
                       >
-                        <GrRobot className="text-2xl text-white" />
+                        <GrRobot className="text-xl text-white" />
+                        <span>Login / Sign Up</span>
                       </button>
                     </div>
                   )}
