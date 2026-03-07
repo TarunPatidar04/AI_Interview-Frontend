@@ -3,6 +3,9 @@ import { motion } from "framer-motion";
 import { FaFileUpload, FaCheckCircle, FaSpinner } from "react-icons/fa";
 import axios from "axios";
 import { API_BASE_URL } from "../config";
+import { useSelector, useDispatch } from "react-redux";
+import { setUserData } from "../redux/userSlice";
+import AuthModel from "../components/AuthModel";
 
 import Footer from "../components/Footer";
 
@@ -11,8 +14,15 @@ const ResumeAnalyzer = () => {
   const [analyzing, setAnalyzing] = useState(false);
   const [analysisResult, setAnalysisResult] = useState(null);
   const [error, setError] = useState("");
+  const { userData } = useSelector((state) => state.user);
+  const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
+  const dispatch = useDispatch();
 
   const handleUploadResume = async () => {
+    if (!userData) {
+      setIsAuthModalOpen(true);
+      return;
+    }
     if (!resumeFile || analyzing) return;
     setAnalyzing(true);
     setError("");
@@ -30,6 +40,9 @@ const ResumeAnalyzer = () => {
         },
       );
 
+      if (result.data.user) {
+        dispatch(setUserData(result.data.user));
+      }
       setAnalysisResult(result.data);
     } catch (err) {
       console.error("Error analyzing resume:", err);
@@ -229,11 +242,12 @@ const ResumeAnalyzer = () => {
                 </div>
 
                 {analysisResult.feedback && (
-                  <div>
-                    <h3 className="text-lg font-bold text-gray-900 mb-4 border-b pb-2">
-                      Resume Feedback
+                  <div className="mt-8">
+                    <h3 className="text-xl font-bold text-gray-900 mb-4 border-b pb-2 flex items-center gap-2">
+                      <FaCheckCircle className="text-green-500" /> Improvement
+                      Plan to reach 100% ATS
                     </h3>
-                    <div className="bg-blue-50 border-l-4 border-blue-500 p-5 rounded-r-xl shadow-sm text-blue-900 leading-relaxed whitespace-pre-line">
+                    <div className="bg-indigo-50 border border-indigo-100 p-6 rounded-2xl shadow-sm text-indigo-900 leading-relaxed whitespace-pre-line text-sm md:text-base font-medium">
                       {analysisResult.feedback}
                     </div>
                   </div>
@@ -256,6 +270,9 @@ const ResumeAnalyzer = () => {
         </motion.div>
       </main>
       <Footer />
+      {isAuthModalOpen && (
+        <AuthModel onClose={() => setIsAuthModalOpen(false)} />
+      )}
     </div>
   );
 };

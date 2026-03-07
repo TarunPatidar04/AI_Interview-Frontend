@@ -1,6 +1,8 @@
 import Footer from "../components/Footer";
 import { Link, useNavigate } from "react-router-dom";
 import { useState, useEffect } from "react";
+import { useSelector } from "react-redux";
+import AuthModel from "../components/AuthModel";
 import { getInterviewHistory } from "../utils/api";
 import {
   FiArrowRight,
@@ -22,6 +24,15 @@ const Home = () => {
   const [history, setHistory] = useState([]);
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
+  const { userData } = useSelector((state) => state.user);
+  const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
+
+  const requireAuth = (e) => {
+    if (!userData) {
+      e.preventDefault();
+      setIsAuthModalOpen(true);
+    }
+  };
 
   useEffect(() => {
     const fetchHistory = async () => {
@@ -93,6 +104,7 @@ const Home = () => {
           >
             <Link
               to="/interview"
+              onClick={requireAuth}
               className="group relative w-full sm:w-auto flex items-center justify-center gap-2 bg-gray-900 text-white px-8 py-4 rounded-full font-bold text-lg hover:scale-105 active:scale-95 transition-all cursor-pointer shadow-lg hover:bg-black"
             >
               <FiPlay className="group-hover:translate-x-1 transition-transform" />
@@ -107,6 +119,7 @@ const Home = () => {
             </a>
             <Link
               to="/resume"
+              onClick={requireAuth}
               className="w-full sm:w-auto flex items-center justify-center gap-2 bg-emerald-50 border border-emerald-200 text-emerald-700 px-8 py-4 rounded-full font-semibold text-lg hover:bg-emerald-100 hover:scale-105 active:scale-95 transition-all cursor-pointer shadow-sm hover:shadow-md"
             >
               <FiFileText />
@@ -131,6 +144,7 @@ const Home = () => {
             </div>
             <Link
               to="/interview"
+              onClick={requireAuth}
               className="mt-4 md:mt-0 px-6 py-3 bg-emerald-100 text-emerald-700 font-semibold rounded-full hover:bg-emerald-200 transition"
             >
               + New Interview
@@ -152,6 +166,7 @@ const Home = () => {
               </p>
               <Link
                 to="/interview"
+                onClick={requireAuth}
                 className="px-6 py-3 bg-gray-900 text-white font-semibold rounded-full hover:bg-gray-800 transition"
               >
                 Get Started
@@ -438,6 +453,7 @@ const Home = () => {
             </p>
             <Link
               to="/interview"
+              onClick={requireAuth}
               className="inline-flex items-center justify-center gap-2 bg-gray-900 text-white px-10 py-5 rounded-full font-bold text-lg hover:bg-black hover:scale-105 active:scale-95 transition-all cursor-pointer shadow-xl"
             >
               Start Your First Interview <FiArrowRight />
@@ -445,9 +461,11 @@ const Home = () => {
           </motion.div>
         </section>
 
-        {/* Footer */}
         <Footer />
       </main>
+      {isAuthModalOpen && (
+        <AuthModel onClose={() => setIsAuthModalOpen(false)} />
+      )}
     </div>
   );
 };

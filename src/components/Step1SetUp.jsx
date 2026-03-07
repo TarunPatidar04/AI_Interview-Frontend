@@ -10,6 +10,10 @@ import {
 import axios from "axios";
 import { GoMultiSelect } from "react-icons/go";
 import { API_BASE_URL } from "../config";
+import { useSelector, useDispatch } from "react-redux";
+import { setUserData } from "../redux/userSlice";
+import AuthModel from "./AuthModel";
+
 const Step1SetUp = ({ onStart }) => {
   const [role, setRole] = useState("");
   const [experience, setExperience] = useState("");
@@ -23,7 +27,15 @@ const Step1SetUp = ({ onStart }) => {
   const [analysisDone, setAnalysisDone] = useState(false);
   const [analyzing, setAnalyzing] = useState(false);
 
+  const { userData } = useSelector((state) => state.user);
+  const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
+  const dispatch = useDispatch();
+
   const handleUploadResume = async () => {
+    if (!userData) {
+      setIsAuthModalOpen(true);
+      return;
+    }
     if (!resumeFile || analyzing) return;
     setAnalyzing(true);
 
@@ -39,6 +51,10 @@ const Step1SetUp = ({ onStart }) => {
           headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
         },
       );
+
+      if (result.data.user) {
+        dispatch(setUserData(result.data.user));
+      }
 
       setRole(result.data.role || "");
       setExperience(result.data.experience || "");
@@ -242,6 +258,10 @@ const Step1SetUp = ({ onStart }) => {
 
               <motion.button
                 onClick={async () => {
+                  if (!userData) {
+                    setIsAuthModalOpen(true);
+                    return;
+                  }
                   setLoading(true);
                   try {
                     const data = {
@@ -309,6 +329,9 @@ const Step1SetUp = ({ onStart }) => {
           </div>
         </motion.div>
       </div>
+      {isAuthModalOpen && (
+        <AuthModel onClose={() => setIsAuthModalOpen(false)} />
+      )}
     </motion.div>
   );
 };
