@@ -45,6 +45,7 @@ const Navbar = () => {
         {},
         { withCredentials: true },
       );
+      localStorage.removeItem("token");
       dispatch(setUserData(null));
       setProfileDropdownOpen(false);
       setMobileMenuOpen(false);

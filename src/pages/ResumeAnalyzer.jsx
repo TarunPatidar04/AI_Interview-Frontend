@@ -26,6 +26,7 @@ const ResumeAnalyzer = () => {
         formData,
         {
           withCredentials: true,
+          headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
         },
       );
 

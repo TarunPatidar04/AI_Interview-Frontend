@@ -36,6 +36,7 @@ const Step1SetUp = ({ onStart }) => {
         formData,
         {
           withCredentials: true,
+          headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
         },
       );
 
@@ -254,7 +255,12 @@ const Step1SetUp = ({ onStart }) => {
                     const response = await axios.post(
                       `${API_BASE_URL}/interview/generate-questions`,
                       data,
-                      { withCredentials: true },
+                      {
+                        withCredentials: true,
+                        headers: {
+                          Authorization: `Bearer ${localStorage.getItem("token")}`,
+                        },
+                      },
                     );
                     onStart(response.data);
                   } catch (error) {

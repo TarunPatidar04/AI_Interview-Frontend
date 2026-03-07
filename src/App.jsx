@@ -19,6 +19,7 @@ const App = () => {
       try {
         const res = await axios.get(`${API_BASE_URL}/user/current-user`, {
           withCredentials: true,
+          headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
           validateStatus: (status) => status < 500, // Handle 401 without throwing error
         });
         if (res.status === 200) {

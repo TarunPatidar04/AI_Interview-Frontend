@@ -27,7 +27,10 @@ const AuthModel = ({ onClose }) => {
         },
         { withCredentials: true },
       );
-      dispatch(setUserData(result.data.user));
+      if (result.data.token) {
+        localStorage.setItem("token", result.data.token);
+      }
+      dispatch(setUserData(result.data.user || result.data));
       onClose();
     } catch (error) {
       dispatch(setUserData(null));

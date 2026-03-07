@@ -26,7 +26,10 @@ const Auth = () => {
         },
         { withCredentials: true },
       );
-      dispatch(setUserData(result.data));
+      if (result.data.token) {
+        localStorage.setItem("token", result.data.token);
+      }
+      dispatch(setUserData(result.data.user || result.data));
     } catch (error) {
       console.log(error);
       dispatch(setUserData(null));
